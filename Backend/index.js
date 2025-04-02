@@ -1,20 +1,17 @@
 const express = require('express');
+const cors = require('cors');  // Import CORS
 const axios = require('axios');
 const NodeCache = require('node-cache');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Base URL for the social media test server
+// Enable CORS for all routes
+app.use(cors());
+
 const API_BASE_URL = 'http://20.244.56.144/evaluation-service';
+const ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJNYXBDbGFpbXMiOnsiZXhwIjoxNzQzNjA3OTI2LCJpYXQiOjE3NDM2MDc2MjYsImlzcyI6IkFmZm9yZG1lZCIsImp0aSI6ImZmZGI2MWM4LTY2YTgtNDUwNy1hMmExLTJkODUyNjgzODk4OSIsInN1YiI6IjIyMDUzMDQwQGtpaXQuYWMuaW4ifSwiZW1haWwiOiIyMjA1MzA0MEBraWl0LmFjLmluIiwibmFtZSI6InZpc2hhbCBhbmFuZCIsInJvbGxObyI6IjIyMDUzMDQwIiwiYWNjZXNzQ29kZSI6Im53cHdyWiIsImNsaWVudElEIjoiZmZkYjYxYzgtNjZhOC00NTA3LWEyYTEtMmQ4NTI2ODM4OTg5IiwiY2xpZW50U2VjcmV0IjoiTVVzRFNEc1R4UnlkQU5KVyJ9.BbgR2prBhXSIy42PWywk75gyTdC1qHpFURpY0S1jNd0"; // Truncated
 
-// Authentication token
-const ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJNYXBDbGFpbXMiOnsiZXhwIjoxNzQzNjA3OTI2LCJpYXQiOjE3NDM2MDc2MjYsImlzcyI6IkFmZm9yZG1lZCIsImp0aSI6ImZmZGI2MWM4LTY2YTgtNDUwNy1hMmExLTJkODUyNjgzODk4OSIsInN1YiI6IjIyMDUzMDQwQGtpaXQuYWMuaW4ifSwiZW1haWwiOiIyMjA1MzA0MEBraWl0LmFjLmluIiwibmFtZSI6InZpc2hhbCBhbmFuZCIsInJvbGxObyI6IjIyMDUzMDQwIiwiYWNjZXNzQ29kZSI6Im53cHdyWiIsImNsaWVudElEIjoiZmZkYjYxYzgtNjZhOC00NTA3LWEyYTEtMmQ4NTI2ODM4OTg5IiwiY2xpZW50U2VjcmV0IjoiTVVzRFNEc1R4UnlkQU5KVyJ9.BbgR2prBhXSIy42PWywk75gyTdC1qHpFURpY0S1jNd0";
-
-// Cache configuration with TTL in seconds
-const cache = new NodeCache({
-    stdTTL: 60,
-    checkperiod: 120
-});
+const cache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
 let userPostCounts = new Map();
 let userPostsMap = new Map();
@@ -36,9 +33,7 @@ async function initializeData() {
 async function fetchUsers() {
     try {
         const response = await axios.get(`${API_BASE_URL}/users`, {
-            headers: {
-                'Authorization': `Bearer ${ACCESS_TOKEN}`
-            }
+            headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
         });
         const users = response.data.users;
         cache.set('allUsers', users);
@@ -52,9 +47,7 @@ async function fetchUsers() {
 async function fetchPostsForUser(userId) {
     try {
         const response = await axios.get(`${API_BASE_URL}/users/${userId}/posts`, {
-            headers: {
-                'Authorization': `Bearer ${ACCESS_TOKEN}`
-            }
+            headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
         });
         const posts = response.data.posts;
         userPostCounts.set(userId, posts.length);
@@ -74,9 +67,7 @@ async function fetchPostsForUser(userId) {
 async function fetchCommentsForPost(postId) {
     try {
         const response = await axios.get(`${API_BASE_URL}/posts/${postId}/comments`, {
-            headers: {
-                'Authorization': `Bearer ${ACCESS_TOKEN}`
-            }
+            headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
         });
         const comments = response.data.comments;
         postsWithCommentCounts.set(postId, comments.length);
